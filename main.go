@@ -59,7 +59,7 @@ func pickedBranches() ([]string, error) {
 	}
 	done := 0
 	err = object.WalkCommitHistory(hcm, func(cm *object.Commit) error {
-		if done++; done > historyLimit {
+		if done++; done > historyLimit || len(commitsLeft) == 0 {
 			return reachedEnd
 		}
 		str := commitStr(cm)
