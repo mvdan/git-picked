@@ -40,9 +40,10 @@ func pickedBranches() ([]string, error) {
 		return nil, err
 	}
 	// commits not yet confirmed picked
-	commitsLeft := make(map[string]*plumbing.Reference, len(all))
+	commitsLeft := make(map[string]*plumbing.Reference, len(all)-1)
 	picked := make([]string, 0)
 	for _, ref := range all {
+		// HEAD is obviously part of itself
 		if ref.Name() == head.Name() {
 			continue
 		}
@@ -62,13 +63,10 @@ func pickedBranches() ([]string, error) {
 			return reachedEnd
 		}
 		str := commitStr(cm)
-		ref, e := commitsLeft[str]
-		if !e {
-			// different commit
-			return nil
+		if ref, e := commitsLeft[str]; e {
+			delete(commitsLeft, str)
+			picked = append(picked, ref.Name().Short())
 		}
-		delete(commitsLeft, str)
-		picked = append(picked, ref.Name().Short())
 		return nil
 	})
 	if err == reachedEnd {
