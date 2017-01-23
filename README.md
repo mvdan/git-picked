@@ -14,9 +14,11 @@ It matches commits via a hash containing:
 * Author date (in UTC)
 * Commit summary (first line of its message)
 
-Note that the matching is only done with the tip commit of each branch
-for simplicity. Thus this tool will be wrong if only some of the commits
-of a branch ahead of HEAD are cherry-picked, but not the tip one. This
-might change in the future.
+Note that the matching is only done with the tip commit of each branch.
 
-It is a standalone binary and does not depend on the `git` executable.
+Matching is done against the history of `HEAD`, stopping when either all
+commits have been found or when the commit dates fall behind the author
+dates of the commits left to match. This will work nicely as long as
+noone uses a time machine.
+
+This is a standalone binary and does not depend on the `git` executable.

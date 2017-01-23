@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	git "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 )
-
-const historyLimit = 500
 
 func main() {
 	branches, err := pickedBranches()
@@ -24,6 +23,11 @@ func main() {
 	for _, b := range branches {
 		fmt.Println(b)
 	}
+}
+
+type branchInfo struct {
+	ref    *plumbing.Reference
+	author time.Time
 }
 
 func pickedBranches() ([]string, error) {
@@ -40,8 +44,7 @@ func pickedBranches() ([]string, error) {
 		return nil, err
 	}
 	// commits not yet confirmed picked
-	commitsLeft := make(map[string]*plumbing.Reference, len(all)-1)
-	picked := make([]string, 0)
+	commitsLeft := make(map[string]branchInfo, len(all)-1)
 	for _, ref := range all {
 		// HEAD is obviously part of itself
 		if ref.Name() == head.Name() {
@@ -51,7 +54,10 @@ func pickedBranches() ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		commitsLeft[commitStr(cm)] = ref
+		commitsLeft[commitStr(cm)] = branchInfo{
+			ref:    ref,
+			author: cm.Author.When.UTC(),
+		}
 	}
 	if len(commitsLeft) == 0 {
 		return nil, nil
@@ -60,18 +66,20 @@ func pickedBranches() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	done := 0
+	stopTime := oldestTime(commitsLeft)
+	picked := make([]string, 0)
 	err = object.WalkCommitHistory(hcm, func(cm *object.Commit) error {
-		if done++; done > historyLimit {
+		if cm.Committer.When.Before(stopTime) {
 			return reachedEnd
 		}
 		str := commitStr(cm)
-		if ref, e := commitsLeft[str]; e {
+		if bi, e := commitsLeft[str]; e {
 			delete(commitsLeft, str)
-			picked = append(picked, ref.Name().Short())
+			picked = append(picked, bi.ref.Name().Short())
 			if len(commitsLeft) == 0 {
 				return reachedEnd
 			}
+			stopTime = oldestTime(commitsLeft)
 		}
 		return nil
 	})
@@ -81,7 +89,19 @@ func pickedBranches() ([]string, error) {
 	return picked, err
 }
 
-var reachedEnd = fmt.Errorf("reached limit of %d commits", historyLimit)
+func oldestTime(m map[string]branchInfo) time.Time {
+	first := true
+	var oldest time.Time
+	for _, bi := range m {
+		if first || bi.author.Before(oldest) {
+			oldest = bi.author
+		}
+		first = false
+	}
+	return oldest
+}
+
+var reachedEnd = fmt.Errorf("reached end")
 
 func commitStr(cm *object.Commit) string {
 	summary := cm.Message
