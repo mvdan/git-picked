@@ -1,5 +1,7 @@
 # git-picked
 
+[![Travis](https://travis-ci.org/mvdan/git-picked.svg?branch=master)](https://travis-ci.org/mvdan/git-picked)
+
 This tool is a drop-in replacement for `git branch --merged` which also
 works when branches are rebased or cherry-picked into `HEAD`.
 
