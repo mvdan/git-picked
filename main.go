@@ -78,7 +78,10 @@ func pickedBranches() ([]string, error) {
 var reachedEnd = fmt.Errorf("reached limit of %d commits", historyLimit)
 
 func commitStr(cm *object.Commit) string {
-	summary := cm.Message[:strings.IndexByte(cm.Message, '\n')]
+	summary := cm.Message
+	if i := strings.IndexByte(summary, '\n'); i > 0 {
+		summary = summary[:i]
+	}
 	return fmt.Sprintf("%s %s %s %s",
 		cm.Author.Name,
 		cm.Author.Email,
