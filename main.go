@@ -53,19 +53,25 @@ func pickedBranches() ([]string, error) {
 		}
 		commitsLeft[commitStr(cm)] = ref
 	}
+	if len(commitsLeft) == 0 {
+		return nil, nil
+	}
 	hcm, err := r.Commit(head.Hash())
 	if err != nil {
 		return nil, err
 	}
 	done := 0
 	err = object.WalkCommitHistory(hcm, func(cm *object.Commit) error {
-		if done++; done > historyLimit || len(commitsLeft) == 0 {
+		if done++; done > historyLimit {
 			return reachedEnd
 		}
 		str := commitStr(cm)
 		if ref, e := commitsLeft[str]; e {
 			delete(commitsLeft, str)
 			picked = append(picked, ref.Name().Short())
+			if len(commitsLeft) == 0 {
+				return reachedEnd
+			}
 		}
 		return nil
 	})
