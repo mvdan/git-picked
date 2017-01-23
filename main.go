@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -101,19 +102,23 @@ func oldestTime(m map[string]branchInfo) time.Time {
 	return oldest
 }
 
-var reachedEnd = fmt.Errorf("reached end")
+var (
+	reachedEnd = fmt.Errorf("reached end")
+
+	buf bytes.Buffer
+)
 
 func commitStr(cm *object.Commit) string {
+	buf.Reset()
+	buf.WriteString(cm.Author.Name)
+	buf.WriteString(cm.Author.Email)
+	buf.WriteString(cm.Author.When.UTC().String())
 	summary := cm.Message
 	if i := strings.IndexByte(summary, '\n'); i > 0 {
 		summary = summary[:i]
 	}
-	return fmt.Sprintf("%s %s %s %s",
-		cm.Author.Name,
-		cm.Author.Email,
-		cm.Author.When.UTC().String(),
-		summary,
-	)
+	buf.WriteString(summary)
+	return buf.String()
 }
 
 func allBranches(r *git.Repository) ([]*plumbing.Reference, error) {
