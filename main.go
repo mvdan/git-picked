@@ -69,7 +69,7 @@ func pickedBranches() ([]string, error) {
 	}
 	stopTime := oldestTime(commitsLeft)
 	picked := make([]string, 0)
-	err = object.WalkCommitHistory(hcm, func(cm *object.Commit) error {
+	err = walkHistory(hcm, func(cm *object.Commit) error {
 		if cm.Committer.When.Before(stopTime) {
 			return reachedEnd
 		}
@@ -108,6 +108,26 @@ var (
 	buf bytes.Buffer
 )
 
+// like object.WalkCommitHistory, but doing parents in reverse order.
+// This prioritizes feature branch commits over the main branch, to see
+// merged commits right after the merge commit.
+func walkHistory(cm *object.Commit, fn func(cm *object.Commit) error) error {
+	queue := []*object.Commit{cm}
+	for len(queue) > 0 {
+		cm := queue[len(queue)-1]
+		if err := fn(cm); err != nil {
+			return err
+		}
+		queue = queue[:len(queue)-1]
+		cm.Parents().ForEach(func(pcm *object.Commit) error {
+			queue = append(queue, pcm)
+			return nil
+		})
+	}
+	return nil
+
+}
+
 func commitStr(cm *object.Commit) string {
 	buf.Reset()
 	buf.WriteString(cm.Author.Name)
@@ -128,11 +148,11 @@ func allBranches(r *git.Repository) ([]*plumbing.Reference, error) {
 	}
 	defer refs.Close()
 	all := make([]*plumbing.Reference, 0)
-	err = refs.ForEach(func(ref *plumbing.Reference) error {
+	refs.ForEach(func(ref *plumbing.Reference) error {
 		if ref.IsBranch() {
 			all = append(all, ref)
 		}
 		return nil
 	})
-	return all, err
+	return all, nil
 }
