@@ -112,15 +112,15 @@ var (
 // This prioritizes feature branch commits over the main branch, to see
 // merged commits right after the merge commit.
 func walkHistory(cm *object.Commit, fn func(cm *object.Commit) error) error {
-	queue := []*object.Commit{cm}
-	for len(queue) > 0 {
-		cm := queue[len(queue)-1]
+	stack := []*object.Commit{cm}
+	for len(stack) > 0 {
+		cm := stack[len(stack)-1]
 		if err := fn(cm); err != nil {
 			return err
 		}
-		queue = queue[:len(queue)-1]
+		stack = stack[:len(stack)-1]
 		cm.Parents().ForEach(func(pcm *object.Commit) error {
-			queue = append(queue, pcm)
+			stack = append(stack, pcm)
 			return nil
 		})
 	}
