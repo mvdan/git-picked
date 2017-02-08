@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	git "srcd.works/go-git.v4"
+	"srcd.works/go-git.v4/plumbing"
+	"srcd.works/go-git.v4/plumbing/object"
 )
 
 func main() {
@@ -32,7 +32,7 @@ type branchInfo struct {
 }
 
 func pickedBranches() ([]string, error) {
-	r, err := git.NewFilesystemRepository(".git")
+	r, err := git.PlainOpen(".")
 	if err != nil {
 		return nil, err
 	}
