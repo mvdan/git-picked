@@ -91,16 +91,15 @@ func pickedBranches() ([]string, error) {
 	return picked, err
 }
 
-func oldestTime(m map[string]branchInfo) time.Time {
+func oldestTime(m map[string]branchInfo) (oldest time.Time) {
 	first := true
-	var oldest time.Time
 	for _, bi := range m {
 		if first || bi.author.Before(oldest) {
 			oldest = bi.author
 		}
 		first = false
 	}
-	return oldest
+	return
 }
 
 // like object.WalkCommitHistory, but doing parents in reverse order.
