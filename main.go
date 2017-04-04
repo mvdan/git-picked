@@ -70,7 +70,7 @@ func pickedBranches() ([]string, error) {
 	stopTime := oldestTime(commitsLeft)
 	picked := make([]string, 0)
 	reachedEnd := fmt.Errorf("reached end")
-	err = walkHistory(hcm, func(cm *object.Commit) error {
+	err = object.WalkCommitHistoryPost(hcm, func(cm *object.Commit) error {
 		if cm.Committer.When.Before(stopTime) {
 			return reachedEnd
 		}
@@ -100,25 +100,6 @@ func oldestTime(m map[string]branchInfo) (oldest time.Time) {
 		first = false
 	}
 	return
-}
-
-// like object.WalkCommitHistory, but doing parents in reverse order.
-// This prioritizes feature branch commits over the main branch, to see
-// merged commits right after the merge commit.
-func walkHistory(cm *object.Commit, fn func(cm *object.Commit) error) error {
-	stack := []*object.Commit{cm}
-	for len(stack) > 0 {
-		cm := stack[len(stack)-1]
-		if err := fn(cm); err != nil {
-			return err
-		}
-		stack = stack[:len(stack)-1]
-		cm.Parents().ForEach(func(pcm *object.Commit) error {
-			stack = append(stack, pcm)
-			return nil
-		})
-	}
-	return nil
 }
 
 var buf bytes.Buffer
