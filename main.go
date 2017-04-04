@@ -51,7 +51,7 @@ func pickedBranches() ([]string, error) {
 		if ref.Name() == head.Name() {
 			continue
 		}
-		cm, err := r.Commit(ref.Hash())
+		cm, err := r.CommitObject(ref.Hash())
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +63,7 @@ func pickedBranches() ([]string, error) {
 	if len(commitsLeft) == 0 {
 		return nil, nil
 	}
-	hcm, err := r.Commit(head.Hash())
+	hcm, err := r.CommitObject(head.Hash())
 	if err != nil {
 		return nil, err
 	}
