@@ -70,7 +70,8 @@ func pickedBranches() ([]string, error) {
 	stopTime := oldestTime(commitsLeft)
 	picked := make([]string, 0)
 	reachedEnd := fmt.Errorf("reached end")
-	err = object.WalkCommitHistoryPost(hcm, func(cm *object.Commit) error {
+	iter := object.NewCommitPostIterator(hcm)
+	err = iter.ForEach(func(cm *object.Commit) error {
 		if cm.Committer.When.Before(stopTime) {
 			return reachedEnd
 		}
