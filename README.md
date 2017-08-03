@@ -22,3 +22,12 @@ dates of the commits left to match. This will work nicely as long as
 noone uses a time machine.
 
 This is a standalone binary and does not depend on the `git` executable.
+
+Note that this heuristic may get confused with release branches. As
+such, if you name your release branches `release-x.y` you likely want to
+use an alias like:
+
+	git-picked | grep -vE '^(master|release|backport)'
+
+Branches with patches targeting branches other than master should also
+be excluded, like `backport-some-feature` in this case.
