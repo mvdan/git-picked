@@ -126,7 +126,7 @@ func allBranches(r *git.Repository) ([]*plumbing.Reference, error) {
 	defer refs.Close()
 	all := make([]*plumbing.Reference, 0)
 	refs.ForEach(func(ref *plumbing.Reference) error {
-		if ref.IsBranch() {
+		if ref.Name().IsBranch() {
 			all = append(all, ref)
 		}
 		return nil
