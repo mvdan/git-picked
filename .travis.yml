@@ -1,4 +1,6 @@
 language: go
 
+go_import_path: mvdan.cc/git-picked
+
 go:
   - 1.8.x
