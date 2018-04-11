@@ -32,7 +32,8 @@ type branchInfo struct {
 }
 
 func pickedBranches() ([]string, error) {
-	r, err := git.PlainOpen(".")
+	openOpt := &git.PlainOpenOptions{DetectDotGit: true}
+	r, err := git.PlainOpenWithOptions(".", openOpt)
 	if err != nil {
 		return nil, err
 	}
