@@ -27,7 +27,7 @@ func main() {
 }
 
 type branchInfo struct {
-	ref    *plumbing.Reference
+	refs   []*plumbing.Reference
 	author time.Time
 }
 
@@ -56,8 +56,10 @@ func pickedBranches() ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		commitsLeft[commitStr(cm)] = branchInfo{
-			ref:    ref,
+		key := commitKey(cm)
+		prev := commitsLeft[key]
+		commitsLeft[key] = branchInfo{
+			refs:   append(prev.refs, ref),
 			author: cm.Author.When.UTC(),
 		}
 	}
@@ -76,10 +78,12 @@ func pickedBranches() ([]string, error) {
 		if cm.Committer.When.Before(stopTime) {
 			return reachedEnd
 		}
-		str := commitStr(cm)
-		if bi, e := commitsLeft[str]; e {
-			delete(commitsLeft, str)
-			picked = append(picked, bi.ref.Name().Short())
+		key := commitKey(cm)
+		if bi, e := commitsLeft[key]; e {
+			delete(commitsLeft, key)
+			for _, ref := range bi.refs {
+				picked = append(picked, ref.Name().Short())
+			}
 			if len(commitsLeft) == 0 {
 				return reachedEnd
 			}
@@ -106,7 +110,7 @@ func oldestTime(m map[string]branchInfo) (oldest time.Time) {
 
 var buf bytes.Buffer
 
-func commitStr(cm *object.Commit) string {
+func commitKey(cm *object.Commit) string {
 	buf.Reset()
 	buf.WriteString(cm.Author.Name)
 	buf.WriteString(cm.Author.Email)
