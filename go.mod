@@ -2,6 +2,7 @@ module mvdan.cc/git-picked
 
 require (
 	github.com/google/go-cmp v0.3.1 // indirect
+	github.com/rogpeppe/go-internal v1.5.0
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7 // indirect
 	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b // indirect

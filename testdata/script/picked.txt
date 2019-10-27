@@ -1,0 +1,59 @@
+[!exec:git] skip 'git is required to run this script'
+
+exec git init
+exec git config user.name "Test Script"
+exec git config user.email "test@script.tld"
+
+exec git add initial.txt
+exec git commit -m 'initial commit'
+
+# Running in an equal non-master branch will find "master" as being picked.
+exec git checkout -b fast-forward
+
+git-picked
+stdout 'master'
+
+# Adding a commit will still find master as being picked.
+exec git add fast-forward.txt
+exec git commit -m 'fast-forward commit'
+
+git-picked
+stdout 'master'
+
+# Doing a merge of the branch (fast-forward) will show it as picked.
+exec git checkout master
+exec git merge --ff-only fast-forward
+
+git-picked
+stdout 'fast-forward'
+
+# The same, but with cherry-pick
+exec git checkout -b cherry-pick
+exec git add cherry-pick.txt
+exec git commit -m 'cherry-pick commit'
+exec git checkout master
+exec git cherry-pick cherry-pick
+
+# The same, but with a merge commit
+exec git checkout -b merge-commit
+exec git add merge-commit.txt
+exec git commit -m 'merge-commit commit'
+exec git checkout master
+exec git merge --no-ff merge-commit
+
+# Check all the branches set up above.
+git-picked
+! stdout master
+stdout 'fast-forward'
+stdout 'cherry-pick'
+stdout 'merge-commit'
+
+-- initial.txt --
+initial content
+
+-- fast-forward.txt --
+fast-forwarded content
+-- cherry-pick.txt --
+cherry-picked content
+-- merge-commit.txt --
+merge-committed content

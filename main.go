@@ -15,15 +15,18 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 )
 
-func main() {
+func main() { os.Exit(main1()) }
+
+func main1() int {
 	branches, err := pickedBranches()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		return 1
 	}
 	for _, b := range branches {
 		fmt.Println(b)
 	}
+	return 0
 }
 
 type branchInfo struct {

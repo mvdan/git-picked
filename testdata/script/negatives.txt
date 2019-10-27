@@ -1,0 +1,66 @@
+[!exec:git] skip 'git is required to run this script'
+
+exec git init
+exec git config user.name "Test Script"
+exec git config user.email "test@script.tld"
+
+# Running in the master branch, with no other branches.
+exec git add initial.txt
+exec git commit -m 'initial commit'
+
+git-picked
+! stdout .
+
+# Set up a branch that's never picked
+exec git checkout -b non-picked
+exec git add non-picked.txt
+exec git commit -m 'non-picked commit'
+exec git checkout master
+
+# Set up a branch with a different history
+exec git checkout -b different-history
+exec git commit --amend -m 'rewritten initial commit'
+exec git checkout master
+
+# Set up a branch that's cherry-picked with a different author
+exec git checkout -b picked-different-author
+exec git add picked-different-author.txt
+exec git commit -m 'picked commit with different author'
+exec git checkout master
+exec git cherry-pick picked-different-author
+exec git commit --amend --no-edit --author='Someone Else <someone@else.tld>'
+
+# Set up a branch that's cherry-picked with a different date
+exec git checkout -b picked-different-date
+exec git add picked-different-date.txt
+exec git commit --date=format:relative:2.hours.ago -m 'picked commit with different date'
+exec git checkout master
+exec git cherry-pick picked-different-date
+exec git commit --amend --no-edit --date=now
+
+# Set up a branch that's cherry-picked with a different message
+exec git checkout -b picked-different-message
+exec git add picked-different-message.txt
+exec git commit -m 'picked commit with different message'
+exec git checkout master
+exec git cherry-pick picked-different-message
+exec git commit --amend -m 'a whole new commit message'
+
+# None of the branches above should show up as picked.
+git-picked
+! stdout .
+
+-- initial.txt --
+initial content
+
+-- non-picked.txt --
+non-picked content
+
+-- picked-different-author.txt --
+picked content with different author
+
+-- picked-different-date.txt --
+picked content with different date
+
+-- picked-different-message.txt --
+picked content with different message
