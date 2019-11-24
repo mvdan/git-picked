@@ -13,6 +13,7 @@ import (
 	git "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/plumbing/storer"
 )
 
 func main() { os.Exit(main1()) }
@@ -75,11 +76,10 @@ func pickedBranches() ([]string, error) {
 	}
 	stopTime := oldestTime(commitsLeft)
 	picked := make([]string, 0)
-	reachedEnd := fmt.Errorf("reached end")
 	iter := object.NewCommitPostorderIter(hcm, nil)
 	err = iter.ForEach(func(cm *object.Commit) error {
 		if cm.Committer.When.Before(stopTime) {
-			return reachedEnd
+			return storer.ErrStop
 		}
 		key := commitKey(cm)
 		if bi, e := commitsLeft[key]; e {
@@ -88,15 +88,12 @@ func pickedBranches() ([]string, error) {
 				picked = append(picked, ref.Name().Short())
 			}
 			if len(commitsLeft) == 0 {
-				return reachedEnd
+				return storer.ErrStop
 			}
 			stopTime = oldestTime(commitsLeft)
 		}
 		return nil
 	})
-	if err == reachedEnd {
-		err = nil
-	}
 	return picked, err
 }
 
