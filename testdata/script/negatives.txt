@@ -33,7 +33,7 @@ exec git commit --amend --no-edit --author='Someone Else <someone@else.tld>'
 # Set up a branch that's cherry-picked with a different date
 exec git checkout -b picked-different-date
 exec git add picked-different-date.txt
-exec git commit --date=format:relative:2.hours.ago -m 'picked commit with different date'
+exec git commit --date='2 hours ago' -m 'picked commit with different date'
 exec git checkout master
 exec git cherry-pick picked-different-date
 exec git commit --amend --no-edit --date=now

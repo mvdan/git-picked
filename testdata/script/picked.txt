@@ -41,19 +41,46 @@ exec git commit -m 'merge-commit commit'
 exec git checkout master
 exec git merge --no-ff merge-commit
 
+# A merged commit, with an ancient commit merged after it.
+exec git checkout -b out-of-order
+exec git add out-of-order.txt
+exec git commit -m 'out-of-order commit'
+exec git checkout master
+
+exec git checkout -b ancient-commit
+exec git add ancient-commit.txt
+env GIT_AUTHOR_DATE='2010-11-22 03:04:05'
+env GIT_COMMITTER_DATE='2010-11-22 03:04:05'
+exec git commit -m 'ancient commit that was merged later'
+env GIT_AUTHOR_DATE=
+env GIT_COMMITTER_DATE=
+exec git checkout master
+
+exec git merge --no-ff out-of-order
+exec git merge --no-ff ancient-commit
+exec git branch -D ancient-commit # we're not interested in the ancient branch
+
 # Check all the branches set up above.
 git-picked
 ! stdout master
 stdout 'fast-forward'
 stdout 'cherry-pick'
 stdout 'merge-commit'
+stdout 'out-of-order'
 
 -- initial.txt --
 initial content
 
 -- fast-forward.txt --
 fast-forwarded content
+
 -- cherry-pick.txt --
 cherry-picked content
+
 -- merge-commit.txt --
 merge-committed content
+
+-- out-of-order.txt --
+out-of-order content
+-- ancient-commit.txt --
+ancient-commit content
