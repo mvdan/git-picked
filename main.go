@@ -70,16 +70,15 @@ func pickedBranches() ([]string, error) {
 	if len(commitsLeft) == 0 {
 		return nil, nil
 	}
-	nextMainHistory := head.Hash()
-	hcm, err := r.CommitObject(nextMainHistory)
+	hcm, err := r.CommitObject(head.Hash())
 	if err != nil {
 		return nil, err
 	}
 	stopTime := oldestTime(commitsLeft)
 	picked := make([]string, 0)
-	iter := object.NewCommitPostorderIter(hcm, nil)
+	iter := NewCommitChronologicalIter(hcm, nil)
 	err = iter.ForEach(func(cm *object.Commit) error {
-		if nextMainHistory == cm.Hash && cm.Committer.When.Before(stopTime) {
+		if cm.Committer.When.Before(stopTime) {
 			return storer.ErrStop
 		}
 		key := commitKey(cm)
@@ -92,11 +91,6 @@ func pickedBranches() ([]string, error) {
 				return storer.ErrStop
 			}
 			stopTime = oldestTime(commitsLeft)
-		}
-		if len(cm.ParentHashes) > 0 {
-			nextMainHistory = cm.ParentHashes[0]
-		} else {
-			nextMainHistory = plumbing.ZeroHash
 		}
 		return nil
 	})
