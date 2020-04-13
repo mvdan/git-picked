@@ -100,10 +100,10 @@ git-picked
 cmp stdout stdout.golden
 
 -- stdout.golden --
-changed-title
 ancient-commit
-merge-commit
+changed-title
 cherry-pick
+merge-commit
 -- initial.txt --
 initial content
 

@@ -4,8 +4,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -18,11 +20,18 @@ import (
 func main() { os.Exit(main1()) }
 
 func main1() int {
+	flag.Usage = func() { fmt.Fprintln(os.Stderr, `usage: git-picked [flags]`) }
+	flag.Parse()
+	if len(flag.Args()) > 0 {
+		flag.Usage() // we don't take any args
+	}
+
 	branches, err := pickedBranches()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
+	sort.Strings(branches)
 	for _, b := range branches {
 		fmt.Println(b)
 	}
