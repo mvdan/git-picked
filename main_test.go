@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -14,7 +15,17 @@ import (
 func TestMain(m *testing.M) {
 	os.Exit(testscript.RunMain(m, map[string]func() int{
 		"git-picked": main1,
+		"join-lines": joinLines,
 	}))
+}
+
+// joinLines is a little helper, since it's impossible to have multiline strings
+// in testscript files.
+func joinLines() int {
+	for _, arg := range os.Args[1:] {
+		fmt.Println(arg)
+	}
+	return 0
 }
 
 func TestScripts(t *testing.T) {

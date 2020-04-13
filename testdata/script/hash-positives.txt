@@ -63,11 +63,13 @@ exec git branch -D ancient-commit # we're not interested in the ancient branch
 # Check all the branches set up above.
 git-picked
 ! stdout master
-stdout 'fast-forward'
-stdout 'cherry-pick'
-stdout 'merge-commit'
-stdout 'out-of-order'
+cmp stdout stdout.golden
 
+-- stdout.golden --
+out-of-order
+merge-commit
+cherry-pick
+fast-forward
 -- initial.txt --
 initial content
 

@@ -3,9 +3,11 @@
 This tool is a drop-in replacement for `git branch --merged` which also works
 when branches are rebased or cherry-picked into `HEAD`.
 
-	go get -u mvdan.cc/git-picked
+	go get mvdan.cc/git-picked
 
-It matches commits via a hash containing:
+It tries to match commits via their
+[Change-Id](https://gerrit-review.googlesource.com/Documentation/user-changeid.html),
+if it is present. Otherwise, a hash is used consisting of:
 
 * Author name
 * Author email

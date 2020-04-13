@@ -4,7 +4,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -108,19 +107,49 @@ func oldestTime(m map[string]branchInfo) (oldest time.Time) {
 	return
 }
 
-var buf bytes.Buffer
-
+// commitKey returns a string that uniquely identifies a commit. If a commit
+// message contains a Change-Id as described by
+// https://gerrit-review.googlesource.com/Documentation/user-changeid.html, it
+// will be returned directly. Otherwise, a string containing commit metadata
+// will be returned instead, including the author information and the commit
+// summary.
 func commitKey(cm *object.Commit) string {
-	buf.Reset()
-	buf.WriteString(cm.Author.Name)
-	buf.WriteString(cm.Author.Email)
-	buf.WriteString(cm.Author.When.UTC().String())
+	const changeIdPrefix = "Change-Id: "
+	// Split the lines. Trim spaces too, as commit messages often end in a
+	// newline.
+	lines := strings.Split(strings.TrimSpace(cm.Message), "\n")
+
+	// Start from the bottom, as the Change-Id belongs in the footer.
+	for i := len(lines) - 1; i >= 0; i-- {
+		line := lines[i]
+		if line == "" {
+			break // Change-Id can only be part of the footer
+		}
+		if !strings.HasPrefix(line, changeIdPrefix) {
+			continue // not a Change-Id
+		}
+		// We found the Change-Id.
+		id := strings.TrimSpace(line[len(changeIdPrefix):])
+		if len(id) < 10 {
+			// Gerrit's IDs are "I" + 40 hex chars.
+			// Require at least 10, for minimum uniqueness.
+			continue
+		}
+		return id
+	}
+
+	// No Change-Id found; fall back to inferring uniqueness from the
+	// metadata.
+	var b strings.Builder
+	b.WriteString(cm.Author.Name)
+	b.WriteString(cm.Author.Email)
+	b.WriteString(cm.Author.When.UTC().String())
 	summary := cm.Message
 	if i := strings.IndexByte(summary, '\n'); i > 0 {
 		summary = summary[:i]
 	}
-	buf.WriteString(summary)
-	return buf.String()
+	b.WriteString(summary)
+	return b.String()
 }
 
 func allBranches(r *git.Repository) ([]*plumbing.Reference, error) {
