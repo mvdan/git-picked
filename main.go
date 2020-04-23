@@ -84,7 +84,7 @@ func pickedBranches() ([]string, error) {
 	}
 	stopTime := oldestTime(commitsLeft)
 	picked := make([]string, 0)
-	iter := NewCommitChronologicalIter(hcm, nil)
+	iter := object.NewCommitIterCTime(hcm, nil, nil)
 	err = iter.ForEach(func(cm *object.Commit) error {
 		if cm.Committer.When.Before(stopTime) {
 			return storer.ErrStop
