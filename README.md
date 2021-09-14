@@ -3,7 +3,7 @@
 This tool is a drop-in replacement for `git branch --merged` which also works
 when branches are rebased or cherry-picked into `HEAD`.
 
-	go get mvdan.cc/git-picked
+	go install mvdan.cc/git-picked@latest
 
 It tries to match commits via their
 [Change-Id](https://gerrit-review.googlesource.com/Documentation/user-changeid.html),
