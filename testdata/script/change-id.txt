@@ -12,8 +12,7 @@ exec git checkout -b cherry-pick
 exec git add cherry-pick.txt
 
 join-lines 'cherry-pick commit' '' 'Change-Id: I1111111111111111111111111111111111111111'
-cp stdout tmp # TODO: replace with 'stdin stdout' once supported
-stdin tmp/stdout
+stdin stdout
 exec git commit -F-
 
 exec git checkout master
@@ -24,8 +23,7 @@ exec git checkout -b merge-commit
 exec git add merge-commit.txt
 
 join-lines 'merge-commit commit' '' 'Change-Id: I2222222222222222222222222222222222222222'
-cp stdout tmp
-stdin tmp/stdout
+stdin stdout
 exec git commit -F-
 
 exec git checkout master
@@ -38,8 +36,7 @@ env GIT_AUTHOR_DATE='2010-11-22 03:04:05'
 env GIT_COMMITTER_DATE='2010-11-22 03:04:05'
 
 join-lines 'ancient commit that was cherry-picked later' '' 'Change-Id: I3333333333333333333333333333333333333333'
-cp stdout tmp
-stdin tmp/stdout
+stdin stdout
 exec git commit -F-
 
 env GIT_AUTHOR_DATE=
@@ -53,15 +50,13 @@ exec git checkout -b changed-title
 exec git add changed-title.txt
 
 join-lines 'old title' '' 'Change-Id: I4444444444444444444444444444444444444444'
-cp stdout tmp
-stdin tmp/stdout
+stdin stdout
 exec git commit -F-
 
 exec git checkout master
 exec git cherry-pick changed-title
 join-lines 'new title' '' 'Change-Id: I4444444444444444444444444444444444444444'
-cp stdout tmp
-stdin tmp/stdout
+stdin stdout
 exec git commit --amend -F-
 
 # A cherry-picked commit that got its Change-Id lost isn't picked.
@@ -69,8 +64,7 @@ exec git checkout -b lost-id
 exec git add lost-id.txt
 
 join-lines 'lost id commit' '' 'Change-Id: I5555555555555555555555555555555555555555'
-cp stdout tmp
-stdin tmp/stdout
+stdin stdout
 exec git commit -F-
 
 exec git checkout master
@@ -83,15 +77,13 @@ exec git checkout -b bad-id
 exec git add bad-id.txt
 
 join-lines 'bad id commit' '' 'Change-Id: Iabc123'
-cp stdout tmp
-stdin tmp/stdout
+stdin stdout
 exec git commit -F-
 
 exec git checkout master
 exec git cherry-pick bad-id
 join-lines 'changed bad id commit' '' 'Change-Id: Iabc123'
-cp stdout tmp
-stdin tmp/stdout
+stdin stdout
 exec git commit --amend -F-
 
 # Check all the branches set up above.
