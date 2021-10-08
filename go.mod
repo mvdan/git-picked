@@ -1,6 +1,6 @@
 module mvdan.cc/git-picked
 
-go 1.14
+go 1.16
 
 require (
 	github.com/go-git/go-git/v5 v5.0.0
