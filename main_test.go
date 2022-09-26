@@ -28,7 +28,7 @@ func joinLines() int {
 	return 0
 }
 
-func TestScripts(t *testing.T) {
+func TestScript(t *testing.T) {
 	t.Parallel()
 	testscript.Run(t, testscript.Params{
 		Dir: filepath.Join("testdata", "script"),
