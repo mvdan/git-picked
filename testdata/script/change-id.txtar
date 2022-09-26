@@ -11,7 +11,7 @@ exec git commit -m 'initial commit'
 exec git checkout -b cherry-pick
 exec git add cherry-pick.txt
 
-join-lines 'cherry-pick commit' '' 'Change-Id: I1111111111111111111111111111111111111111'
+exec join-lines 'cherry-pick commit' '' 'Change-Id: I1111111111111111111111111111111111111111'
 stdin stdout
 exec git commit -F-
 
@@ -22,7 +22,7 @@ exec git cherry-pick cherry-pick
 exec git checkout -b merge-commit
 exec git add merge-commit.txt
 
-join-lines 'merge-commit commit' '' 'Change-Id: I2222222222222222222222222222222222222222'
+exec join-lines 'merge-commit commit' '' 'Change-Id: I2222222222222222222222222222222222222222'
 stdin stdout
 exec git commit -F-
 
@@ -35,7 +35,7 @@ exec git add ancient-commit.txt
 env GIT_AUTHOR_DATE='2010-11-22 03:04:05'
 env GIT_COMMITTER_DATE='2010-11-22 03:04:05'
 
-join-lines 'ancient commit that was cherry-picked later' '' 'Change-Id: I3333333333333333333333333333333333333333'
+exec join-lines 'ancient commit that was cherry-picked later' '' 'Change-Id: I3333333333333333333333333333333333333333'
 stdin stdout
 exec git commit -F-
 
@@ -49,13 +49,13 @@ exec git commit --amend --no-edit --date=now
 exec git checkout -b changed-title
 exec git add changed-title.txt
 
-join-lines 'old title' '' 'Change-Id: I4444444444444444444444444444444444444444'
+exec join-lines 'old title' '' 'Change-Id: I4444444444444444444444444444444444444444'
 stdin stdout
 exec git commit -F-
 
 exec git checkout master
 exec git cherry-pick changed-title
-join-lines 'new title' '' 'Change-Id: I4444444444444444444444444444444444444444'
+exec join-lines 'new title' '' 'Change-Id: I4444444444444444444444444444444444444444'
 stdin stdout
 exec git commit --amend -F-
 
@@ -63,7 +63,7 @@ exec git commit --amend -F-
 exec git checkout -b lost-id
 exec git add lost-id.txt
 
-join-lines 'lost id commit' '' 'Change-Id: I5555555555555555555555555555555555555555'
+exec join-lines 'lost id commit' '' 'Change-Id: I5555555555555555555555555555555555555555'
 stdin stdout
 exec git commit -F-
 
@@ -76,18 +76,18 @@ exec git commit --amend -m 'lost id commit'
 exec git checkout -b bad-id
 exec git add bad-id.txt
 
-join-lines 'bad id commit' '' 'Change-Id: Iabc123'
+exec join-lines 'bad id commit' '' 'Change-Id: Iabc123'
 stdin stdout
 exec git commit -F-
 
 exec git checkout master
 exec git cherry-pick bad-id
-join-lines 'changed bad id commit' '' 'Change-Id: Iabc123'
+exec join-lines 'changed bad id commit' '' 'Change-Id: Iabc123'
 stdin stdout
 exec git commit --amend -F-
 
 # Check all the branches set up above.
-git-picked
+exec git-picked
 ! stdout master
 cmp stdout stdout.golden
 

@@ -10,21 +10,21 @@ exec git commit -m 'initial commit'
 # Running in an equal non-master branch will find "master" as being picked.
 exec git checkout -b fast-forward
 
-git-picked
+exec git-picked
 stdout 'master'
 
 # Adding a commit will still find master as being picked.
 exec git add fast-forward.txt
 exec git commit -m 'fast-forward commit'
 
-git-picked
+exec git-picked
 stdout 'master'
 
 # Doing a merge of the branch (fast-forward) will show it as picked.
 exec git checkout master
 exec git merge --ff-only fast-forward
 
-git-picked
+exec git-picked
 stdout 'fast-forward'
 
 # The same, but with cherry-pick
@@ -61,7 +61,7 @@ exec git merge --no-ff ancient-commit
 exec git branch -D ancient-commit # we're not interested in the ancient branch
 
 # Check all the branches set up above.
-git-picked
+exec git-picked
 ! stdout master
 cmp stdout stdout.golden
 

@@ -8,7 +8,7 @@ exec git config user.email "test@script.tld"
 exec git add initial.txt
 exec git commit -m 'initial commit'
 
-git-picked
+exec git-picked
 ! stdout .
 
 # Set up a branch that's never picked
@@ -47,7 +47,7 @@ exec git cherry-pick picked-different-message
 exec git commit --amend -m 'a whole new commit message'
 
 # None of the branches above should show up as picked.
-git-picked
+exec git-picked
 ! stdout .
 
 -- initial.txt --
