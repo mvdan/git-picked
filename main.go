@@ -17,9 +17,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/storer"
 )
 
-func main() { os.Exit(main1()) }
-
-func main1() int {
+func main() {
 	flag.Usage = func() { fmt.Fprintln(os.Stderr, `usage: git-picked [flags]`) }
 	flag.Parse()
 	if len(flag.Args()) > 0 {
@@ -29,13 +27,12 @@ func main1() int {
 	branches, err := pickedBranches()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		return 1
+		os.Exit(1)
 	}
 	sort.Strings(branches)
 	for _, b := range branches {
 		fmt.Println(b)
 	}
-	return 0
 }
 
 type branchInfo struct {
