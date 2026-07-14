@@ -1,0 +1,86 @@
+[!exec:git] skip 'git is required to run this script'
+
+exec git init --bare $WORK/remote.git
+
+exec git init
+exec git config user.name "Test Script"
+exec git config user.email "test@script.tld"
+exec git remote add origin $WORK/remote.git
+
+exec git add initial.txt
+exec git commit -m 'initial commit'
+exec git push origin master
+exec git fetch origin
+
+# A branch whose tip was pushed as a patchset; nothing left to push.
+exec git checkout -b pushed
+exec git add pushed.txt
+exec git commit -m 'pushed commit'
+exec git push origin pushed:refs/changes/01/101/1
+
+# A pushed branch amended afterwards; its new tip was never pushed.
+exec git checkout master
+exec git checkout -b amended
+exec git add amended.txt
+exec git commit -m 'amended commit'
+exec git push origin amended:refs/changes/02/102/1
+env GIT_COMMITTER_DATE='2011-01-01 00:00:00'
+exec git commit --amend -m 'amended commit, take two'
+
+# A branch never pushed at all, with a newer commit time; the output is
+# sorted by tip commit time, newest first.
+exec git checkout master
+exec git checkout -b unpushed
+exec git add unpushed.txt
+env GIT_COMMITTER_DATE='2012-01-01 00:00:00'
+exec git commit -m 'unpushed commit'
+env GIT_COMMITTER_DATE=
+
+# Branches tracking a second remote are checked against it,
+# and not against the default origin.
+exec git init --bare $WORK/second.git
+exec git remote add second $WORK/second.git
+exec git checkout master
+exec git push second master
+exec git fetch second
+
+# A branch tracking the second remote, pushed there.
+exec git checkout -b pushed2 second/master
+exec git add pushed2.txt
+exec git commit -m 'pushed2 commit'
+exec git push second pushed2:refs/changes/03/103/1
+
+# A branch tracking the second remote, pushed only to origin;
+# on its own remote it remains unpushed.
+exec git checkout -b crossed second/master
+exec git add crossed.txt
+env GIT_COMMITTER_DATE='2013-01-01 00:00:00'
+exec git commit -m 'crossed commit'
+env GIT_COMMITTER_DATE=
+exec git push origin crossed:refs/changes/04/104/1
+
+exec git checkout master
+exec git-picked -unpushed
+cmp stdout stdout.golden
+
+-- stdout.golden --
+crossed	1
+unpushed	1
+amended	1
+-- initial.txt --
+initial content
+
+-- pushed.txt --
+pushed content
+
+-- amended.txt --
+amended content
+
+-- unpushed.txt --
+unpushed content
+
+-- pushed2.txt --
+pushed2 content
+
+-- crossed.txt --
+crossed content

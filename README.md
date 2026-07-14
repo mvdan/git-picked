@@ -30,3 +30,25 @@ name your release branches `release-x.y` you likely want to use an alias like:
 
 Branches with patches targeting branches other than master should also be
 excluded, like `backport-some-feature` in this case.
+
+## Unpushed branches
+
+	git-picked -unpushed [-remote origin]
+
+This mode lists the branches which contain commits not yet pushed to Gerrit,
+with a tab-separated count of such commits per branch, sorted by the commit
+time of each branch's tip, newest first.
+
+Each branch is checked against the remote it tracks, falling back to the
+`-remote` flag for branches which do not track one; each remote is listed
+at most once.
+
+Every patchset pushed for review is advertised by the remote as a `refs/changes/*` ref,
+so a commit which is not on any remote branch and whose hash is not one of
+those refs has never been pushed in its current form. Note that this matches
+exact commits: amending a pushed commit counts as unpushed again.
+
+Any credentials which git has configured for the remote's URL are used to
+list the remote, looked up by running `git credential fill` so that git's
+credential helpers are supported. When git has none, or when the git binary
+is unavailable, the remote is listed without credentials.
