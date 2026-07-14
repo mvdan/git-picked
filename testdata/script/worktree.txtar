@@ -1,0 +1,31 @@
+[!exec:git] skip 'git is required to run this script'
+
+exec git init
+exec git config user.name "Test Script"
+exec git config user.email "test@script.tld"
+
+exec git add initial.txt
+exec git commit -m 'initial commit'
+
+exec git checkout -b cherry-pick
+exec git add cherry-pick.txt
+exec git commit -m 'cherry-pick commit'
+
+exec git checkout master
+exec git cherry-pick cherry-pick
+
+# git-picked should give the same result from a linked worktree.
+# TODO: it currently fails to resolve any references there.
+exec git worktree add linked
+cd linked
+! exec git-picked
+stderr 'reference not found'
+
+-- stdout.golden --
+cherry-pick
+master
+-- initial.txt --
+initial content
+
+-- cherry-pick.txt --
+cherry-picked content
