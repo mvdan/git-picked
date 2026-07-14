@@ -41,7 +41,13 @@ type branchInfo struct {
 }
 
 func pickedBranches() ([]string, error) {
-	openOpt := &git.PlainOpenOptions{DetectDotGit: true}
+	openOpt := &git.PlainOpenOptions{
+		DetectDotGit: true,
+		// Follow a linked worktree's commondir to the shared refs and
+		// objects; without this, no branches resolve from a worktree.
+		// Harmless for regular repositories.
+		EnableDotGitCommonDir: true,
+	}
 	r, err := git.PlainOpenWithOptions(".", openOpt)
 	if err != nil {
 		return nil, err
