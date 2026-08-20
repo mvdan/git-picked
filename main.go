@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -329,8 +330,7 @@ func commitKey(cm *object.Commit) string {
 	lines := strings.Split(strings.TrimSpace(cm.Message), "\n")
 
 	// Start from the bottom, as the Change-Id belongs in the footer.
-	for i := len(lines) - 1; i >= 0; i-- {
-		line := lines[i]
+	for _, line := range slices.Backward(lines) {
 		if line == "" {
 			break // Change-Id can only be part of the footer
 		}
