@@ -13,12 +13,12 @@ import (
 	"strings"
 	"time"
 
-	git "github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/plumbing/storer"
-	"github.com/go-git/go-git/v5/plumbing/transport"
-	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
+	git "github.com/go-git/go-git/v6"
+	"github.com/go-git/go-git/v6/plumbing"
+	"github.com/go-git/go-git/v6/plumbing/client"
+	"github.com/go-git/go-git/v6/plumbing/object"
+	"github.com/go-git/go-git/v6/plumbing/storer"
+	githttp "github.com/go-git/go-git/v6/plumbing/transport/http"
 )
 
 var (
@@ -67,10 +67,6 @@ type branchInfo struct {
 func openRepository() (*git.Repository, error) {
 	return git.PlainOpenWithOptions(".", &git.PlainOpenOptions{
 		DetectDotGit: true,
-		// Follow a linked worktree's commondir to the shared refs and
-		// objects; without this, no branches resolve from a worktree.
-		// Harmless for regular repositories.
-		EnableDotGitCommonDir: true,
 	})
 }
 
@@ -195,8 +191,12 @@ func unpushedForRemote(r *git.Repository, remoteName string, branchRefs []*plumb
 	if err != nil {
 		return nil, err
 	}
+	var clientOpts []client.Option
+	if auth := gitCredentials(remote.Config().URLs[0]); auth != nil {
+		clientOpts = append(clientOpts, client.WithHTTPAuth(auth))
+	}
 	remoteRefs, err := remote.List(&git.ListOptions{
-		Auth: gitCredentials(remote.Config().URLs[0]),
+		ClientOptions: clientOpts,
 	})
 	if err != nil {
 		return nil, err
@@ -279,7 +279,7 @@ func unpushedForRemote(r *git.Repository, remoteName string, branchRefs []*plumb
 // URL, looked up by running "git credential fill" so that git's credential
 // helpers are supported. It returns nil when there are none, such as when no
 // helper knows about the host or the git binary is unavailable.
-func gitCredentials(rawURL string) transport.AuthMethod {
+func gitCredentials(rawURL string) *githttp.BasicAuth {
 	if !strings.HasPrefix(rawURL, "https://") && !strings.HasPrefix(rawURL, "http://") {
 		return nil
 	}
